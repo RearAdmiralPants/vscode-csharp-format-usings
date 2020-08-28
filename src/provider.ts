@@ -1,24 +1,26 @@
 import * as vs from 'vscode';
 import * as formatting from './formatting';
 
-const COMMAND_ID = "csharpsortusings.sortUsings";
-
-const getFormatOptions = (): formatting.IFormatConfig => {
-    const cfg = vs.workspace.getConfiguration('csharpsortusings');
+const getFormatOptions = (): formatting.IFormatOptions => {
+    const cfg = vs.workspace.getConfiguration('csharpFormatUsings');
 
     return {
-        sortUsingsEnabled: cfg.get<boolean>('sort.usings.enabled', true),
-        sortUsingsOrder: cfg.get<string>('sort.usings.order', 'System'),
-        sortUsingsSplitGroups: cfg.get<boolean>('sort.usings.splitGroups', true)
+        sortOrder: cfg.get<string>('sortOrder', 'System Microsoft'),
+        splitGroups: cfg.get<boolean>('splitGroups', true),
+        removeUnnecessaryUsings: cfg.get<boolean>('removeUnnecessaryUsings', true),
+        numEmptyLinesAfterUsings: cfg.get<number>('numEmptyLinesAfterUsings', 1),
+        numEmptyLinesBeforeUsings: cfg.get<number>('numEmptyLinesBeforeUsings', 1),
     };
 };
 
-export function getEdits(editor: vs.TextEditor, edit: vs.TextEditorEdit) {
-    try {
-        const result = formatting.process(editor.document.getText(), getFormatOptions());
+export async function getEdits(editor: vs.TextEditor, edit: vs.TextEditorEdit) {
+    var options = getFormatOptions();
 
+    try {
+        var result = formatting.process(editor, options);
         if (result) {
-            const range = new vs.Range(new vs.Position(0, 0), editor.document.lineAt(editor.document.lineCount - 1).range.end);
+            const range = new vs.Range(
+                new vs.Position(0, 0), editor.document.lineAt(editor.document.lineCount - 1).range.end);
             edit.replace(range, result);
         }
     }
