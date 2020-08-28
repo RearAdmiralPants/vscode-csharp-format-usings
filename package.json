@@ -6,7 +6,7 @@
         "default": "icon-128.png"
     },
     "icon": "icon-256.png",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "gaoshan0621",
     "engines": {
         "vscode": "^1.48.0"
@@ -87,7 +87,7 @@
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "test": "node ./out/test/runTest.js",
-        "package": "node_modules/.bin/vsce package"
+        "package": "vsce package"
     },
     "devDependencies": {
         "@types/vscode": "^1.48.0",
