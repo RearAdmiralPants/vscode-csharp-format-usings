@@ -1,18 +1,17 @@
-[![Marketplace](https://vsmarketplacebadge.apphb.com/version-short/jongrant.csharpsortusings.svg)](https://marketplace.visualstudio.com/items?itemName=jongrant.csharpsortusings)
-[![Installs](https://vsmarketplacebadge.apphb.com/installs-short/jongrant.csharpsortusings.svg)](https://marketplace.visualstudio.com/items?itemName=jongrant.csharpsortusings)
-[![Rating](https://vsmarketplacebadge.apphb.com/rating-short/jongrant.csharpsortusings.svg)](https://marketplace.visualstudio.com/items?itemName=jongrant.csharpsortusings)
-
-
-# CSharpSortUsings for Visual Studio Code
+# CSharpFormatUsings for Visual Studio Code
 This extension helps to format C# using statements.
 
 ## Features
   * Sorts usings in alphabetical order. Doubles will be removed automatically.
-  * Triggered via context menu or "sort usings" command.
+  * Remove unnecessary usings.
+  * Triggered via context menu or "Format Usings" command.
 
 ## Extension Settings
-* `sort.usings.order`: Put namespaces in proper order. Values should be splitted with space. "System" by default.
-* `sort.usings.splitGroups`: Insert blank line between using blocks grouped by first part of namespace. True by default.
+* `sortOrder`: Put namespaces in proper order. Values should be splitted with space. "System" by default.
+* `splitGroups`: Insert blank line between using blocks grouped by first part of namespace. True by default.
+* `removeUnnecessaryUsings`: Remove unnecessary usings if true. True by default.
+* `numEmptyLinesAfterUsings`: the number of empty lines would be preserved between using statements and code block
+* `numEmptyLinesBeforeUsings`: The maximum number of empty lines before using statements if there are characters, like comments, before usings.
 
 ## Installation of release version
 Use instructions from marketplace.
