@@ -39,16 +39,19 @@ const getNamespaceOrder = (ns: string, orderedNames: string[]): number => {
 
 export function process(editor: vs.TextEditor, options: IFormatOptions): string {
     var content = editor.document.getText();
+    const endOfline = editor.document.eol === vs.EndOfLine.LF ? '\n' : '\r\n';
     const firstUsing = content.search(/using\s+[.\w]+;/);
+    const firstUsingLine = content.substring(0, firstUsing)
+        .split(endOfline)
+        .length - 1;
 
     content = replaceCode(content, /\s*(using\s+[.\w]+;\s*)+/gm, rawBlock => {
-        const endOfline = editor.document.eol === vs.EndOfLine.LF ? '\n' : '\r\n';
         const lines = rawBlock.split(endOfline)
             .map(l => l?.trim() ?? '');     // remove heading and trailing whitespaces
         const usings = lines.filter(l => l.length > 0);
 
         if (options.removeUnnecessaryUsings) {
-            removeUnncessaryUsings(editor, usings);
+            removeUnncessaryUsings(editor, usings, firstUsingLine);
         }
 
         sortUsings(usings, options);
@@ -66,9 +69,13 @@ export function process(editor: vs.TextEditor, options: IFormatOptions): string 
                 }
             }
         }
-        // Preserve num empty lines between usings and code block
-        for (var i = 0; i <= options.numEmptyLinesAfterUsings; i++) {
-            usings.push('');
+
+        // if no using left, there is no need to insert extra empty lines
+        if (usings.length > 0) {
+            // Preserve num empty lines between usings and code block
+            for (var i = 0; i <= options.numEmptyLinesAfterUsings; i++) {
+                usings.push('');
+            }
         }
 
         return usings.join(endOfline);
@@ -76,14 +83,7 @@ export function process(editor: vs.TextEditor, options: IFormatOptions): string 
     return content;
 }
 
-export function removeUnncessaryUsings(editor: vs.TextEditor, usings: string[]) {
-    const endOfline = editor.document.eol === vs.EndOfLine.LF ? '\n' : '\r\n';
-    const content = editor.document.getText();
-    const firstUsing = content.search(/using\s+[.\w]+;/);
-    const firstUsingLine = content.substring(0, firstUsing)
-        .split(endOfline)
-        .length - 1;
-
+export function removeUnncessaryUsings(editor: vs.TextEditor, usings: string[], firstUsingLine : number) {
     const unnecessaryUsingIndexs = vs.languages.getDiagnostics(editor.document.uri)
         .filter(diagnostic => diagnostic.source === 'csharp' && 'CS8019' === diagnostic.code?.toString())
         .map(diagnostic => diagnostic.range.start.line - firstUsingLine);

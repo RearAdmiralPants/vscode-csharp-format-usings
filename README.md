@@ -24,5 +24,5 @@ Use instructions from marketplace: [CSharp Format Usings](https://marketplace.vi
 ## Installation from sources
 1. Install node.js.
 2. Run "npm install" from project folder.
-3. Run "npm run package" from project folder.
+3. Run "npm run package" from project folder. Please make sure `vsce` is installed: `npm install -g vsce`.
 4. Install brand new packed *.vsix bundle through vscode plugins menu option "Install from VSIX".
