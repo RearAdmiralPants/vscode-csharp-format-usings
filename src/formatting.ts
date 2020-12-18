@@ -6,6 +6,7 @@ export interface IFormatOptions {
     removeUnnecessaryUsings: boolean;
     numEmptyLinesAfterUsings: number;
     numEmptyLinesBeforeUsings: number;
+    usingsWithinNamespace: boolean;
 }
 
 export interface IResult {
@@ -45,6 +46,7 @@ export function process(editor: vs.TextEditor, options: IFormatOptions): string 
         .split(endOfline)
         .length - 1;
 
+    var finishedUsingBlock = '';
     content = replaceCode(content, /\s*(using\s+[.\w]+;\s*)+/gm, rawBlock => {
         const lines = rawBlock.split(endOfline)
             .map(l => l?.trim() ?? '');     // remove heading and trailing whitespaces
@@ -78,9 +80,58 @@ export function process(editor: vs.TextEditor, options: IFormatOptions): string 
             }
         }
 
+        finishedUsingBlock = usings.join(endOfline);
+
         return usings.join(endOfline);
     });
+
+    if (options.usingsWithinNamespace) {
+        content = moveUsingStatementsInsideNamespace(editor, finishedUsingBlock);
+    }
+
     return content;
+}
+
+
+export function moveUsingStatementsInsideNamespace(editor: vs.TextEditor, usingBlock: string) {
+    var content: string = editor.document.getText();
+    const locFirstUsing = content.indexOf('using');
+    const locNamespace = content.indexOf('namespace');
+    if (locFirstUsing > locNamespace) {
+        // Already done
+        return content;
+    }
+
+    const endOfLine = editor.document.eol === vs.EndOfLine.LF ? '\n' : '\r\n';
+    content = content.replace(usingBlock, '');
+    const insertionLoc = content.indexOf(endOfLine, content.indexOf('namespace')) + 1;
+    if (insertionLoc === 0) {
+        // This means the file's entirety without its using statements (if any) is a single line, "namespace" -- do we really want to support this scenario?
+        content = content + endOfLine + usingBlock;
+        return content;
+    }
+
+    if (content.search(/namespace\s *\S *\s *\{/gim)) {
+        // React accordingly
+    }
+
+    /* Don't think I need to do this nonsense
+    const lines = content.split(endOfLine, 20);
+    var namespaceLine = -1;
+    for (var iterLines: number = 0; iterLines < lines.length; iterLines++) {
+        content += endOfLine + lines[iterLines];
+        if (lines[iterLines].search(/namespace\s *\S *\s *\{/gim)) {
+            content += endOfLine + usingBlock;
+        }
+        else if (lines[iterLines].search(/namespace\s\S*\s/star//)) {
+            namespaceLine = iterLines;
+        }
+        else if (namespaceLine > -1 && lines[iterLines].search(/^\s*\{/)) {
+
+        }
+    }
+    */
+
 }
 
 export function removeUnncessaryUsings(editor: vs.TextEditor, usings: string[], firstUsingLine : number) {
